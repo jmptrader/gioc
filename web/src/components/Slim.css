@@ -1,0 +1,36 @@
+/* Modo Slim */
+.slim-sidebar {
+    width: 80px; /* Menú más compacto */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    gap: 10px;
+}
+
+/* Ítems del menú en Slim */
+.slim-menu-item {
+    position: relative;
+    width: 100%;
+    text-align: center;
+}
+
+/* Botones del menú */
+.menu-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Hover para mostrar submenús */
+.slim-menu-item:hover .p-menu {
+    display: block;
+    position: absolute;
+    left: 80px;
+    top: 0;
+}

@@ -1,0 +1,11 @@
+
+ioc-monitor/
+  - public/
+  - src/
+    - assets/         // Recursos adicionales (imagenes, etc)
+    - components/     // Componentes reutilizables (Login, Navbar, etc.)
+    - pages/          // Páginas principales (Login, Home, Funcionalidad1, etc.)
+    - services/       // Lógica de autenticación (authService.js)
+    - App.jsx         // Componente principal
+    - index.jsx       // Punto de entrada
+
