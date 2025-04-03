@@ -12,6 +12,7 @@ func SetupRouter() *gin.Engine {
 	api := r.Group("/api")
 	{
 		api.GET("/users", controllers.GetUsers)
+		api.POST("/process", controllers.HandleProcessJSON)
 	}
 
 	return r
