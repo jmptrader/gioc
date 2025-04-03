@@ -1,3 +1,17 @@
+# Docker
+
+```bash
+# Construir Imagen
+docker build -t mi-react-app .
+```
+
+```bash
+# Construye Container
+docker run -d -p 3000:80 mi-react-app
+```
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
