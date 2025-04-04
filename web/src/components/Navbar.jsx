@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react';
 import { Toast } from 'primereact/toast';
 import { useNavigate } from 'react-router-dom'; // 🚀 Importamos useNavigate
 import './Navbar.css';
+import { sendData } from "../services/apiService";
+
 
 const Navbar = ({ theme, setBreadcrumb }) => {
 
@@ -47,6 +49,11 @@ const Navbar = ({ theme, setBreadcrumb }) => {
                     label: 'Calcular', // Tercer nivel
                     icon: 'pi pi-folder-open',
                     command: () => navigate('/home/calcular') // 🚀 Redirige al hacer clic
+                },
+                {
+                    label: 'Interface', // Tercer nivel
+                    icon: 'pi pi-folder-open',
+                    command: () => navigate('/home/interface') // 🚀 Redirige al hacer clic
                 }
             ]
         },
