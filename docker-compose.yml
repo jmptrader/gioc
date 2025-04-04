@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   backend:
+    container_name: backend  # Nombre personalizado
     build:
       context: ./myapi
       dockerfile: Dockerfile
@@ -11,6 +12,7 @@ services:
       - app-network
 
   frontend:
+    container_name: frontend  # Nombre personalizado
     build:
       context: ./web
       dockerfile: Dockerfile
