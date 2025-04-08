@@ -1,10 +1,13 @@
 import axios from "axios";
 
-const API_URL = "/api/process"; // Cambiado de localhost a backend
-const API_URL_A = "/api/errorsA";
-const API_URL_B = "/api/errorsB";
-const API_URL_C = "/api/errorsC";
-//const API_URL = "http://localhost:8080/api/process"; // prueba local
+
+//const API = "http://localhost:8080"; // Cambiado de localhost a backend
+const API=URL = ""; // para docker
+
+    const API_URL = `${API}/api/process`; // Cambiado de localhost a backend
+const API_URL_A = `${API}/api/errorsA`;
+const API_URL_B = `${API}/api/errorsB`;
+const API_URL_C = `${API}/api/errorsC`;
 
 export const sendData = async (data) => {
     try {
