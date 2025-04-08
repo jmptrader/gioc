@@ -54,6 +54,11 @@ const Navbar = ({ theme, setBreadcrumb }) => {
                     label: 'Interface', // Tercer nivel
                     icon: 'pi pi-folder-open',
                     command: () => navigate('/home/interface') // 🚀 Redirige al hacer clic
+                },
+                {
+                    label: 'Errores', // Tercer nivel
+                    icon: 'pi pi-folder-open',
+                    command: () => navigate('/home/errores') // 🚀 Redirige al hacer clic
                 }
             ]
         },
