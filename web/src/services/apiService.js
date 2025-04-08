@@ -2,7 +2,7 @@ import axios from "axios";
 
 
 //const API = "http://localhost:8080"; // Cambiado de localhost a backend
-const API=URL = ""; // para docker
+const API = ""; // para docker
 
     const API_URL = `${API}/api/process`; // Cambiado de localhost a backend
 const API_URL_A = `${API}/api/errorsA`;
