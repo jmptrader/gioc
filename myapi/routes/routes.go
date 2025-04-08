@@ -24,6 +24,9 @@ func SetupRouter() *gin.Engine {
 	{
 		api.GET("/users", controllers.GetUsers)
 		api.POST("/process", controllers.HandleProcessJSON)
+		api.POST("/errorsA", controllers.ErrorsAJSON)
+		api.POST("/errorsB", controllers.ErrorsBJSON)
+		api.POST("/errorsC", controllers.ErrorsCJSON)
 	}
 
 	return r
