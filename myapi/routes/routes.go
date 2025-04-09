@@ -27,6 +27,7 @@ func SetupRouter() *gin.Engine {
 		api.POST("/errorsA", controllers.ErrorsAJSON)
 		api.POST("/errorsB", controllers.ErrorsBJSON)
 		api.POST("/errorsC", controllers.ErrorsCJSON)
+		api.POST("/errorsD", controllers.ErrorsDJSON)
 	}
 
 	return r

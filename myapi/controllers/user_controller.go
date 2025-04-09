@@ -44,125 +44,93 @@ func HandleProcessJSON(c *gin.Context) {
 }
 
 func ErrorsAJSON(c *gin.Context) {
-	horaFinalizado1 := "10:15"
-	var registros = []models.MessageA{
-		{
-			ID:             1,
-			Secuencia:      "A001",
-			FechaCarga:     "2025-04-08",
-			Modulo:         "Ventas",
-			Iniciado:       true,
-			Finalizado:     true,
-			Error:          false,
-			HoraIniciado:   "10:00",
-			HoraFinalizado: &horaFinalizado1,
-			Reproceso:      false,
-			Mensaje:        "Proceso exitoso",
-		},
-		{
-			ID:             2,
-			Secuencia:      "A002",
-			FechaCarga:     "2025-04-08",
-			Modulo:         "Inventario",
-			Iniciado:       true,
-			Finalizado:     false,
-			Error:          true,
-			HoraIniciado:   "11:00",
-			HoraFinalizado: nil,
-			Reproceso:      true,
-			Mensaje:        "Error en carga",
-		},
+	// Leer el JSON del cuerpo de la petición
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Error leyendo JSON"})
+		return
+	}
+	defer c.Request.Body.Close()                                      // Cerrar el body después de leerlo
+	data, err := database.GetControlCarga(database.DB2, string(body)) // o DB2 si usas otra conexión
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
 	}
 
-	c.JSON(http.StatusOK, registros)
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    data,
+	})
 }
 
 func ErrorsBJSON(c *gin.Context) {
-	transacciones := []models.MessageB{
-		{
-			ID:                101,
-			Secuencia:         "A001",
-			Modulo:            "Ventas",
-			NombreProducto:    "Producto A",
-			NombreTransaccion: "Carga Inicial",
-			NroRegistros:      120,
-			Error:             false,
-		},
-		{
-			ID:                102,
-			Secuencia:         "A001",
-			Modulo:            "Ventas",
-			NombreProducto:    "Producto B",
-			NombreTransaccion: "Reproceso",
-			NroRegistros:      80,
-			Error:             true,
-		},
-		{
-			ID:                103,
-			Secuencia:         "A002",
-			Modulo:            "Inventario",
-			NombreProducto:    "Producto C",
-			NombreTransaccion: "Carga Manual",
-			NroRegistros:      45,
-			Error:             false,
-		},
-		{
-			ID:                104,
-			Secuencia:         "A002",
-			Modulo:            "Inventario",
-			NombreProducto:    "Producto D",
-			NombreTransaccion: "Carga Programada",
-			NroRegistros:      95,
-			Error:             true,
-		},
+	// Leer el JSON del cuerpo de la petición
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Error leyendo JSON"})
+		return
+	}
+	defer c.Request.Body.Close()                                         // Cerrar el body después de leerlo
+	data, err := database.GetControlCargaMod(database.DB2, string(body)) // o DB2 si usas otra conexión
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
 	}
 
-	c.JSON(http.StatusOK, transacciones)
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    data,
+	})
 }
 
 func ErrorsCJSON(c *gin.Context) {
-	movimientos := []models.MessageC{
-		{
-			ID:               201,
-			Secuencia:        "A001",
-			Modulo:           "Ventas",
-			NombreMovimiento: "Ajuste Precio",
-			AccountNumber:    "123-456-789",
-			Error:            false,
-			Consistencia:     true,
-			Mensaje:          "Movimiento aplicado correctamente",
-		},
-		{
-			ID:               202,
-			Secuencia:        "A001",
-			Modulo:           "Ventas",
-			NombreMovimiento: "Reverso Descuento",
-			AccountNumber:    "321-654-987",
-			Error:            true,
-			Consistencia:     false,
-			Mensaje:          "Error en la validación del movimiento",
-		},
-		{
-			ID:               203,
-			Secuencia:        "A002",
-			Modulo:           "Inventario",
-			NombreMovimiento: "Transferencia Stock",
-			AccountNumber:    "555-111-222",
-			Error:            false,
-			Consistencia:     true,
-			Mensaje:          "Operación completada",
-		},
-		{
-			ID:               204,
-			Secuencia:        "A002",
-			Modulo:           "Inventario",
-			NombreMovimiento: "Ajuste Inventario",
-			AccountNumber:    "888-333-444",
-			Error:            true,
-			Consistencia:     false,
-			Mensaje:          "Inconsistencias detectadas",
-		},
+	// Leer el JSON del cuerpo de la petición
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Error leyendo JSON"})
+		return
+	}
+	defer c.Request.Body.Close()                                       // Cerrar el body después de leerlo
+	data, err := database.GetControlCargaD(database.DB2, string(body)) // o DB2 si usas otra conexión
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
 	}
 
-	c.JSON(http.StatusOK, movimientos)
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    data,
+	})
+}
+
+func ErrorsDJSON(c *gin.Context) {
+	// Leer el JSON del cuerpo de la petición
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Error leyendo JSON"})
+		return
+	}
+	defer c.Request.Body.Close()                                        // Cerrar el body después de leerlo
+	data, err := database.GetControlCargaOp(database.DB2, string(body)) // o DB2 si usas otra conexión
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    data,
+	})
 }

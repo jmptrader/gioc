@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	database.InitDB()
+	database.InitDBs()
 
 	r := routes.SetupRouter()
 	r.Run(":8080")
