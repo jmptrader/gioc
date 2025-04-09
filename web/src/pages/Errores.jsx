@@ -25,15 +25,33 @@ const MyTabbedPage = () => {
 
     const [totalRecords, setTotalRecords] = useState(0); // Total de registros
     const [first, setFirst] = useState(0); // ⬅️ estado para controlar la página
+    const [first2, setFirst2] = useState(0); // ⬅️ estado para controlar la página
+    const [totalRecords2, setTotalRecords2] = useState(0); // Total de registros
+    const [idDetalle, setIdDetalle] = useState(0); // ID del registro seleccionado
+
+    const [initialized, setInitialized] = useState(false);
 
     useEffect(() => {
-        loadPage(0, 10);
-    }, []);
+        if (!initialized) {
+            loadPage(0, 10);
+            setInitialized(true);
+            return;
+        }
+    
+        if (idDetalle !== 0) {
+            loadPage2(0, 10, idDetalle);
+        }
+    }, [idDetalle]);
 
     // Manejador de paginación
     const onPage = (event) => {
         setFirst(event.first); // ⬅️ Actualiza el estado
         loadPage(event.first, event.rows);
+    };
+
+    const onPage2 = (event) => {
+        setFirst2(event.first); // ⬅️ Actualiza el estado
+        loadPage2(event.first, event.rows, idDetalle);
     };
 
     const loadPage = (firstIndex, rows) => {
@@ -43,6 +61,17 @@ const MyTabbedPage = () => {
             setDataTab0(data.data.data);
             setTotalRecords(data.data.total);
             setLoading(false);
+        });
+    };
+
+    const loadPage2 = (firstIndex, rows, id) => {
+        setLoading(true);
+        const currentPage = firstIndex / rows + 1;
+        sendDataErrores2({ page: currentPage, pageSize: rows, id: id }).then((data) => {
+            setDataTab2(data.data.data);
+            setTotalRecords2(data.data.total);
+            setLoading(false);
+            setActiveIndex(2);
         });
     };
 
@@ -68,12 +97,7 @@ const MyTabbedPage = () => {
         setEnabledTabs(newTabs);
         // Simular una carga antes de mostrar el tab 3
         setLoading(true);
-        // Simula la carga de datos para el primer tab
-        sendDataErrores2({ id: rowData.ID_SECUENCIA }).then((data) => {
-            setActiveIndex(2);
-            setDataTab2(data.data);  // Guardar los datos
-            setLoading(false);   // Detener el spinner
-        });
+        setIdDetalle(rowData.ID_SECUENCIA);
     };
 
     const handleRowClickTab2 = (rowData) => {
@@ -191,7 +215,18 @@ const MyTabbedPage = () => {
                             <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />
                         </div>
                     ) : (
-                        <DataTable value={dataTab2} selectionMode="single" onRowClick={(e) => handleRowClickTab2(e.data)}>
+                        <DataTable
+                            value={dataTab2}
+                            paginator
+                            rows={10}
+                            first={first2} // ⬅️ Aquí se indica la página actual
+                            totalRecords={totalRecords2}
+                            onPage={onPage2}
+                            lazy
+                            loading={loading}
+                            selectionMode="single"
+                            onRowClick={(e) => handleRowClickTab2(e.data)}
+                        >
                             <Column field="ID_SECUENCIA" header="Id Secuencia" />
                             <Column field="MODULO_CARGA" header="Modulo" />
                             <Column field="PRODUCT_NAME" header="Nombre Producto" />
