@@ -130,23 +130,50 @@ func GetControlCargaMod(db *sql.DB, inputJSON string) ([]map[string]interface{},
 	return ExecuteSqlQueryWithTimeout(db, query, []interface{}{id}, 20*time.Second)
 }
 
-func GetControlCargaD(db *sql.DB, inputJSON string) ([]map[string]interface{}, error) {
-	// Paso 1: Intentamos parsear el JSON a un mapa de tipo map[string]interface{}
+func GetControlCargaD(db *sql.DB, inputJSON string) (map[string]interface{}, error) {
+
+	// Parsear JSON
 	var input map[string]interface{}
-	err := json.Unmarshal([]byte(inputJSON), &input)
-	if err != nil {
+	if err := json.Unmarshal([]byte(inputJSON), &input); err != nil {
 		return nil, fmt.Errorf("error al parsear el JSON de entrada: %w", err)
 	}
 
-	// Paso 2: Accedemos al valor de 'id' en el mapa
-	id, ok := input["id"].(float64) // El valor será de tipo float64 al deserializar el JSON
-	if !ok {
-		return nil, fmt.Errorf("el campo 'id' no se encontró o no es del tipo correcto")
+	// Extraer parámetros de paginación
+	page := intFromJSON(input, "page", 1)
+	pageSize := intFromJSON(input, "pageSize", 100)
+	offset := (page - 1) * pageSize
+
+	// Consulta paginada
+	query := `
+		SELECT * FROM (
+			SELECT Tae_control_carga_d.*, ROWNUM AS rnum
+			FROM Tae_control_carga_d 
+			WHERE ROWNUM <= :maxRow
+		)
+		WHERE rnum > :minRow
+	`
+
+	data, err := ExecuteSqlQueryWithTimeout(db, query, []interface{}{offset + pageSize, offset}, 20*time.Second)
+	if err != nil {
+		return nil, err
 	}
 
-	// Consulta sin parámetros, devuelve todo
-	query := "SELECT * FROM Tae_control_carga_d where id_secuencia = :1"
-	return ExecuteSqlQueryWithTimeout(db, query, []interface{}{id}, 20*time.Second)
+	// Consulta total de registros
+	var total int
+	countQuery := `SELECT COUNT(*) FROM Tae_control_carga_d`
+	err = db.QueryRow(countQuery).Scan(&total)
+	if err != nil {
+		return nil, fmt.Errorf("error obteniendo el total de registros: %w", err)
+	}
+
+	// Retornar datos + total
+	return map[string]interface{}{
+		"data":       data,
+		"total":      total,
+		"page":       page,
+		"pageSize":   pageSize,
+		"totalPages": (total + pageSize - 1) / pageSize,
+	}, nil
 
 }
 func GetControlCargaOp(db *sql.DB, inputJSON string) ([]map[string]interface{}, error) {

@@ -214,7 +214,7 @@ const MyTabbedPage = () => {
                             <Column field="ID_MOVIMIENTO" header="Nombre Movimiento" />
                             <Column field="ACCOUNT_NUMBER" header="Account Number" />
                             <Column header="Error" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
-                            <Column header="IND_CONSISTENCIA" field="consistencia" />
+                            <Column header="Consistencia" field="consistencia" />
                             <Column field="MENSAJE" header="Mensaje" />
                         </DataTable>
                     )}
