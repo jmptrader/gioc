@@ -143,25 +143,33 @@ func GetControlCargaD(db *sql.DB, inputJSON string) (map[string]interface{}, err
 	pageSize := intFromJSON(input, "pageSize", 100)
 	offset := (page - 1) * pageSize
 
+	// Paso 2: Accedemos al valor de 'id' en el mapa
+	id, ok := input["id"].(float64) // El valor será de tipo float64 al deserializar el JSON
+	if !ok {
+		return nil, fmt.Errorf("el campo 'id' no se encontró o no es del tipo correcto")
+	}
+
 	// Consulta paginada
 	query := `
 		SELECT * FROM (
 			SELECT Tae_control_carga_d.*, ROWNUM AS rnum
 			FROM Tae_control_carga_d 
-			WHERE ROWNUM <= :maxRow
+			where id_secuencia = :id
+			and ROWNUM <= :maxRow
 		)
 		WHERE rnum > :minRow
 	`
 
-	data, err := ExecuteSqlQueryWithTimeout(db, query, []interface{}{offset + pageSize, offset}, 20*time.Second)
+	data, err := ExecuteSqlQueryWithTimeout(db, query, []interface{}{id, offset + pageSize, offset}, 20*time.Second)
 	if err != nil {
 		return nil, err
 	}
 
 	// Consulta total de registros
 	var total int
-	countQuery := `SELECT COUNT(*) FROM Tae_control_carga_d`
-	err = db.QueryRow(countQuery).Scan(&total)
+	// Suponiendo que ya tienes la variable id definida
+	countQuery := `SELECT COUNT(*) FROM Tae_control_carga_d WHERE id_secuencia = :id`
+	err = db.QueryRow(countQuery, sql.Named("id", id)).Scan(&total)
 	if err != nil {
 		return nil, fmt.Errorf("error obteniendo el total de registros: %w", err)
 	}
