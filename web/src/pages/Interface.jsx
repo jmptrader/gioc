@@ -43,7 +43,7 @@ const Interface = () => {
   return (
     <div>
       <h1>Monitorear Procesos</h1>
-      <DataTable value={interfaces} paginator rows={8} selectionMode="single">
+      <DataTable value={interfaces} paginator rows={10} selectionMode="single">
         <Column field="CODIGO_INTERFASE" header="CODIGO_INTERFASE" body={(row) => TruncatedCell(row.CODIGO_INTERFASE)}></Column>
         <Column field="NOMBRE_FISICO" header="NOMBRE_FISICO"></Column>
         <Column field="EXTENSION_FISICA" header="EXTENSION_FISICA"></Column>

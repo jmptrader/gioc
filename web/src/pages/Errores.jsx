@@ -7,28 +7,59 @@ import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 
-import { sendDataErrores1, sendDataErrores2, sendDataErrores3 } from "../services/apiService";
+import { sendDataErrores0, sendDataErrores1, sendDataErrores2, sendDataErrores3 } from "../services/apiService";
 
 const MyTabbedPage = () => {
     const [activeIndex, setActiveIndex] = useState(0);
-    const [enabledTabs, setEnabledTabs] = useState([true, true, false, false]);
+    const [enabledTabs, setEnabledTabs] = useState([true, false, false, false]);
+    const [selectedRowTab0, setSelectedRowTab0] = useState(null);
     const [selectedRowTab1, setSelectedRowTab1] = useState(null);
     const [selectedRowTab2, setSelectedRowTab2] = useState(null);
     const [selectedRowTab3, setSelectedRowTab3] = useState(null);
     const [loading, setLoading] = useState(false);
 
+    const [dataTab0, setDataTab0] = useState([]);
     const [dataTab1, setDataTab1] = useState([]);
     const [dataTab2, setDataTab2] = useState([]);
     const [dataTab3, setDataTab3] = useState([]);
 
-    // Cargar datos automáticamente cuando se monta el componente (primer tab por defecto)
+    const [totalRecords, setTotalRecords] = useState(0); // Total de registros
+    const [first, setFirst] = useState(0); // ⬅️ estado para controlar la página
+
     useEffect(() => {
+        loadPage(0, 10);
+    }, []);
+
+    // Manejador de paginación
+    const onPage = (event) => {
+        setFirst(event.first); // ⬅️ Actualiza el estado
+        loadPage(event.first, event.rows);
+    };
+
+    const loadPage = (firstIndex, rows) => {
+        setLoading(true);
+        const currentPage = firstIndex / rows + 1;
+        sendDataErrores0({ page: currentPage, pageSize: rows }).then((data) => {
+            setDataTab0(data.data.data);
+            setTotalRecords(data.data.total);
+            setLoading(false);
+        });
+    };
+
+    const handleRowClickTab0 = (rowData) => {
+        setSelectedRowTab0(rowData);
+        const newTabs = [...enabledTabs];
+        newTabs[1] = true;
+        setEnabledTabs(newTabs);
+        // Simular una carga antes de mostrar el tab 3
+        setLoading(true);
         // Simula la carga de datos para el primer tab
-        sendDataErrores1().then((data) => {
-            setDataTab1(data);  // Guardar los datos
+        sendDataErrores1({ id: rowData.ID_SECUENCIA }).then((data) => {
+            setActiveIndex(1);
+            setDataTab1(data.data);  // Guardar los datos
             setLoading(false);   // Detener el spinner
         });
-    }, []); // El array vacío asegura que se ejecute solo al montar el componente
+    };
 
     const handleRowClickTab1 = (rowData) => {
         setSelectedRowTab1(rowData);
@@ -38,9 +69,9 @@ const MyTabbedPage = () => {
         // Simular una carga antes de mostrar el tab 3
         setLoading(true);
         // Simula la carga de datos para el primer tab
-        sendDataErrores2().then((data) => {
+        sendDataErrores2({ id: rowData.ID_SECUENCIA }).then((data) => {
             setActiveIndex(2);
-            setDataTab2(data);  // Guardar los datos
+            setDataTab2(data.data);  // Guardar los datos
             setLoading(false);   // Detener el spinner
         });
     };
@@ -54,9 +85,9 @@ const MyTabbedPage = () => {
         setLoading(true);
         setLoading(true);
         // Simula la carga de datos para el primer tab
-        sendDataErrores3().then((data) => {
+        sendDataErrores3({ id: rowData.ID_SECUENCIA }).then((data) => {
             setActiveIndex(3);
-            setDataTab3(data);  // Guardar los datos
+            setDataTab3(data.data);  // Guardar los datos
             setLoading(false);   // Detener el spinner
         });
     };
@@ -70,7 +101,7 @@ const MyTabbedPage = () => {
         setTimeout(() => {
             // Simular carga con retraso
             if (newIndex === 0) {
-                setEnabledTabs([true, true, false, false]);
+                setEnabledTabs([true, false, false, false]);
                 setSelectedRowTab1(null);
             }
             setActiveIndex(newIndex);
@@ -104,7 +135,29 @@ const MyTabbedPage = () => {
                             <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />
                         </div>
                     ) : (
-                        <div></div>
+                        <DataTable
+                            value={dataTab0}
+                            paginator
+                            rows={10}
+                            first={first} // ⬅️ Aquí se indica la página actual
+                            totalRecords={totalRecords}
+                            onPage={onPage}
+                            lazy
+                            loading={loading}
+                            selectionMode="single"
+                            onRowClick={(e) => handleRowClickTab0(e.data)}
+                        >
+                            <Column field="ID_SECUENCIA" header="Id Secuencia" />
+                            <Column field="FECHA_PROCESO" header="Fecha Proceso" />
+                            <Column field="FECHA_CARGA" header="Fecha Carga" />
+                            <Column header="IND_INICI0" body={(rowData) => iconTemplate(rowData.IND_INICI0)} align="center" />
+                            <Column header="IND_FINALIZADO" body={(rowData) => iconTemplate(rowData.IND_FINALIZADO)} align="center" />
+                            <Column header="IND_ERROR" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
+                            <Column field="HORA_INICIO" header="Hora Iniciado" />
+                            <Column field="HORA_FIN" header="Hora Finalizado" />
+                            <Column header="IND_REPROCESO" body={(rowData) => iconTemplate(rowData.IND_REPROCESO)} align="center" />
+                            <Column field="MENSAJE" header="Mensaje" />
+                        </DataTable>
                     )}
                 </TabPanel>
                 <TabPanel header="Control Carga" disabled={!enabledTabs[1]}>
@@ -118,16 +171,16 @@ const MyTabbedPage = () => {
                             selectionMode="single"
                             onRowClick={(e) => handleRowClickTab1(e.data)}
                         >
-                            <Column field="id" header="Id Secuencia" />
-                            <Column field="fechaCarga" header="Fecha Carga" />
-                            <Column field="modulo" header="Modulo" />
-                            <Column header="Iniciado" body={(rowData) => iconTemplate(rowData.iniciado)} align="center" />
-                            <Column header="Finalizado" body={(rowData) => iconTemplate(rowData.finalizado)} align="center" />
-                            <Column header="Error" body={(rowData) => errorIconTemplate(rowData.error)} align="center" />
-                            <Column field="horaIniciado" header="Hora Iniciado" />
-                            <Column field="horaFinalizado" header="Hora Finalizado" />
-                            <Column header="Reproceso" body={(rowData) => iconTemplate(rowData.reproceso)} align="center" />
-                            <Column field="mensaje" header="Mensaje" />
+                            <Column field="ID_SECUENCIA" header="Id Secuencia" />
+                            <Column field="FECHA_CARGA" header="Fecha Carga" />
+                            <Column field="MODULO_CARGA" header="Modulo" />
+                            <Column header="IND_INICIO" body={(rowData) => iconTemplate(rowData.IND_INICIO)} align="center" />
+                            <Column header="IND_FINALIZADO" body={(rowData) => iconTemplate(rowData.IND_FINALIZADO)} align="center" />
+                            <Column header="IND_ERROR" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
+                            <Column field="HORA_INICIO" header="Hora Iniciado" />
+                            <Column field="HORA_FIN" header="Hora Finalizado" />
+                            <Column header="IND_REPRECESO" body={(rowData) => iconTemplate(rowData.reproceso)} align="center" />
+                            <Column field="MENSAJE" header="Mensaje" />
                         </DataTable>
                     )}
                 </TabPanel>
@@ -139,13 +192,12 @@ const MyTabbedPage = () => {
                         </div>
                     ) : (
                         <DataTable value={dataTab2} selectionMode="single" onRowClick={(e) => handleRowClickTab2(e.data)}>
-                            <Column field="id" header="Id Secuencia" />
-                            <Column field="secuencia" header="Secuencia" />
-                            <Column field="modulo" header="Modulo" />
-                            <Column field="nombreProducto" header="Nombre Producto" />
-                            <Column field="nombreTransaccion" header="Nombre Transaccion" />
-                            <Column field="nroRegistros" header="Nro Registros" />
-                            <Column header="Error" body={(rowData) => errorIconTemplate(rowData.error)} align="center" />
+                            <Column field="ID_SECUENCIA" header="Id Secuencia" />
+                            <Column field="MODULO_CARGA" header="Modulo" />
+                            <Column field="PRODUCT_NAME" header="Nombre Producto" />
+                            <Column field="TRANSACTION_NAME" header="Nombre Transaccion" />
+                            <Column field="CANTIDAD_REGISTROS" header="Nro Registros" />
+                            <Column header="IND_ERROR" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
                         </DataTable>
                     )}
                 </TabPanel>
@@ -157,14 +209,13 @@ const MyTabbedPage = () => {
                         </div>
                     ) : (
                         <DataTable value={dataTab3} selectionMode="single">
-                            <Column field="id" header="Id Secuencia" />
-                            <Column field="secuencia" header="Secuencia" />
-                            <Column field="modulo" header="Modulo" />
-                            <Column field="nombreMovimiento" header="Nombre Movimiento" />
-                            <Column field="accountNumber" header="Account Number" />
-                            <Column header="Error" body={(rowData) => errorIconTemplate(rowData.error)} align="center" />
-                            <Column header="Consistencia" field="consistencia" />
-                            <Column field="mensaje" header="Mensaje" />
+                            <Column field="ID_SECUENCIA" header="Id Secuencia" />
+                            <Column field="MODULO_CARGA" header="Modulo" />
+                            <Column field="ID_MOVIMIENTO" header="Nombre Movimiento" />
+                            <Column field="ACCOUNT_NUMBER" header="Account Number" />
+                            <Column header="IND_ERROR" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
+                            <Column header="IND_CONSISTENCIA" field="consistencia" />
+                            <Column field="MENSAJE" header="Mensaje" />
                         </DataTable>
                     )}
                 </TabPanel>
