@@ -150,12 +150,12 @@ const MyTabbedPage = () => {
                             <Column field="ID_SECUENCIA" header="Id Secuencia" />
                             <Column field="FECHA_PROCESO" header="Fecha Proceso" />
                             <Column field="FECHA_CARGA" header="Fecha Carga" />
-                            <Column header="IND_INICI0" body={(rowData) => iconTemplate(rowData.IND_INICI0)} align="center" />
-                            <Column header="IND_FINALIZADO" body={(rowData) => iconTemplate(rowData.IND_FINALIZADO)} align="center" />
-                            <Column header="IND_ERROR" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
+                            <Column header="Iniciado" body={(rowData) => iconTemplate(rowData.IND_INICI0)} align="center" />
+                            <Column header="Finalizado" body={(rowData) => iconTemplate(rowData.IND_FINALIZADO)} align="center" />
+                            <Column header="Error" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
                             <Column field="HORA_INICIO" header="Hora Iniciado" />
                             <Column field="HORA_FIN" header="Hora Finalizado" />
-                            <Column header="IND_REPROCESO" body={(rowData) => iconTemplate(rowData.IND_REPROCESO)} align="center" />
+                            <Column header="Reproceso" body={(rowData) => iconTemplate(rowData.IND_REPROCESO)} align="center" />
                             <Column field="MENSAJE" header="Mensaje" />
                         </DataTable>
                     )}
@@ -174,12 +174,12 @@ const MyTabbedPage = () => {
                             <Column field="ID_SECUENCIA" header="Id Secuencia" />
                             <Column field="FECHA_CARGA" header="Fecha Carga" />
                             <Column field="MODULO_CARGA" header="Modulo" />
-                            <Column header="IND_INICIO" body={(rowData) => iconTemplate(rowData.IND_INICIO)} align="center" />
-                            <Column header="IND_FINALIZADO" body={(rowData) => iconTemplate(rowData.IND_FINALIZADO)} align="center" />
-                            <Column header="IND_ERROR" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
+                            <Column header="Iniciado" body={(rowData) => iconTemplate(rowData.IND_INICIO)} align="center" />
+                            <Column header="Finalizado" body={(rowData) => iconTemplate(rowData.IND_FINALIZADO)} align="center" />
+                            <Column header="Error" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
                             <Column field="HORA_INICIO" header="Hora Iniciado" />
                             <Column field="HORA_FIN" header="Hora Finalizado" />
-                            <Column header="IND_REPRECESO" body={(rowData) => iconTemplate(rowData.reproceso)} align="center" />
+                            <Column header="Reproceso" body={(rowData) => iconTemplate(rowData.reproceso)} align="center" />
                             <Column field="MENSAJE" header="Mensaje" />
                         </DataTable>
                     )}
@@ -197,7 +197,7 @@ const MyTabbedPage = () => {
                             <Column field="PRODUCT_NAME" header="Nombre Producto" />
                             <Column field="TRANSACTION_NAME" header="Nombre Transaccion" />
                             <Column field="CANTIDAD_REGISTROS" header="Nro Registros" />
-                            <Column header="IND_ERROR" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
+                            <Column header="Error" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
                         </DataTable>
                     )}
                 </TabPanel>
@@ -213,7 +213,7 @@ const MyTabbedPage = () => {
                             <Column field="MODULO_CARGA" header="Modulo" />
                             <Column field="ID_MOVIMIENTO" header="Nombre Movimiento" />
                             <Column field="ACCOUNT_NUMBER" header="Account Number" />
-                            <Column header="IND_ERROR" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
+                            <Column header="Error" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
                             <Column header="IND_CONSISTENCIA" field="consistencia" />
                             <Column field="MENSAJE" header="Mensaje" />
                         </DataTable>
