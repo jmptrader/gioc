@@ -78,25 +78,72 @@ func GetControlCarga(db *sql.DB, inputJSON string) (map[string]interface{}, erro
 	pageSize := intFromJSON(input, "pageSize", 100)
 	offset := (page - 1) * pageSize
 
-	// Consulta paginada
-	query := `
-		SELECT * FROM (
-			SELECT Tae_control_carga_cab.*, ROWNUM AS rnum
-			FROM Tae_control_carga_cab
-			WHERE ROWNUM <= :maxRow
-		)
-		WHERE rnum > :minRow
-	`
+	// Extraer las fechas desde y hasta (manejando correctamente null)
+	var fechaDesde, fechaHasta string
+	if input["fechaInicio"] != nil {
+		fechaDesde = input["fechaInicio"].(string)
+	}
+	if input["fechaFin"] != nil {
+		fechaHasta = input["fechaFin"].(string)
+	}
 
-	data, err := ExecuteSqlQueryWithTimeout(db, query, []interface{}{offset + pageSize, offset}, 20*time.Second)
+	log.Println(fechaDesde)
+	log.Println(fechaHasta)
+
+	// Construir la consulta SQL con o sin la condición de fechas
+	query := `
+        SELECT * FROM (
+            SELECT Tae_control_carga_cab.*, ROWNUM AS rnum
+            FROM Tae_control_carga_cab
+            WHERE ROWNUM <= :maxRow
+    `
+
+	// Agregar condición de fecha si las fechas están presentes y no son null/empty
+	params := []interface{}{offset + pageSize, offset}
+	if fechaDesde != "" {
+		query += " AND FECHA_PROCESO >= TO_DATE('" + fechaDesde + "', 'YYYY-MM-DD')"
+		//params = append(params, fechaDesde)
+	}
+	if fechaHasta != "" {
+		query += " AND FECHA_PROCESO <= TO_DATE('" + fechaHasta + "', 'YYYY-MM-DD')"
+		//params = append(params, fechaHasta)
+	}
+
+	// Cerrar la subconsulta
+	query += `
+        )
+        WHERE rnum > :minRow
+    `
+
+	// Ejecutar la consulta
+	data, err := ExecuteSqlQueryWithTimeout(db, query, params, 20*time.Second)
 	if err != nil {
 		return nil, err
 	}
 
-	// Consulta total de registros
-	var total int
+	// Consulta total de registros con condiciones de fechas
 	countQuery := `SELECT COUNT(*) FROM Tae_control_carga_cab`
-	err = db.QueryRow(countQuery).Scan(&total)
+	countParams := []interface{}{}
+
+	// Manejar condiciones WHERE para el conteo
+	hasWhere := false
+	if fechaDesde != "" {
+		countQuery += " WHERE FECHA_PROCESO >= TO_DATE('" + fechaDesde + "', 'YYYY-MM-DD')"
+		//countParams = append(countParams, fechaDesde)
+		hasWhere = true
+	}
+	if fechaHasta != "" {
+		if hasWhere {
+			countQuery += " AND FECHA_PROCESO <= TO_DATE('" + fechaHasta + "', 'YYYY-MM-DD')"
+		} else {
+			countQuery += " WHERE FECHA_PROCESO <= TO_DATE('" + fechaHasta + "', 'YYYY-MM-DD')"
+		}
+		//countParams = append(countParams, fechaHasta)
+	}
+
+	// Obtener el total de registros
+	var total int
+	err = db.QueryRow(countQuery, countParams...).Scan(&total)
 	if err != nil {
 		return nil, fmt.Errorf("error obteniendo el total de registros: %w", err)
 	}
