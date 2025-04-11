@@ -183,6 +183,36 @@ const MyTabbedPage = () => {
         return d.toISOString().split('T')[0];  // Formato 'YYYY-MM-DD'
     };
 
+    const formatDateColumn = (isoDateString) => {
+        if (!isoDateString) return '-'; // Manejo de valores nulos/vacíos
+
+        try {
+            const date = new Date(isoDateString);
+
+            // Extraer día, mes y año
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses son 0-based
+            const year = date.getFullYear();
+
+            return `${day}/${month}/${year}`;
+        } catch (error) {
+            console.error('Error al formatear fecha:', error);
+            return isoDateString; // Devuelve el valor original si hay error
+        }
+    };
+
+    const TruncatedCell = (text, width = 200) => (
+        <span title={text} style={{
+            display: 'inline-block',
+            maxWidth: `${width}px`,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+        }}>
+            {text}
+        </span>
+    );
+
     return (
         <div className="card">
             <TabView activeIndex={activeIndex} onTabChange={handleTabChange}>
@@ -214,15 +244,15 @@ const MyTabbedPage = () => {
                                 onRowClick={(e) => handleRowClickTab0(e.data)}
                             >
                                 <Column field="ID_SECUENCIA" header="Id Secuencia" />
-                                <Column field="FECHA_PROCESO" header="Fecha Proceso" />
-                                <Column field="FECHA_CARGA" header="Fecha Carga" />
+                                <Column field="FECHA_PROCESO" header="Fecha Proceso" body={(rowData) => formatDateColumn(rowData.FECHA_PROCESO)} />
+                                <Column field="FECHA_CARGA" header="Fecha Carga" body={(rowData) => formatDateColumn(rowData.FECHA_CARGA)} />
                                 <Column header="Iniciado" body={(rowData) => iconTemplate(rowData.IND_INICI0)} align="center" />
                                 <Column header="Finalizado" body={(rowData) => iconTemplate(rowData.IND_FINALIZADO)} align="center" />
                                 <Column header="Error" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
                                 <Column field="HORA_INICIO" header="Hora Iniciado" />
                                 <Column field="HORA_FIN" header="Hora Finalizado" />
                                 <Column header="Reproceso" body={(rowData) => iconTemplate(rowData.IND_REPROCESO)} align="center" />
-                                <Column field="MENSAJE" header="Mensaje" />
+                                <Column field="MENSAJE" header="Mensaje" body={(row) => TruncatedCell(row.MENSAJE)}/>
                             </DataTable>
                         </>
                     )}
@@ -240,7 +270,7 @@ const MyTabbedPage = () => {
                             onRowClick={(e) => handleRowClickTab1(e.data)}
                         >
                             <Column field="ID_SECUENCIA" header="Id Secuencia" />
-                            <Column field="FECHA_CARGA" header="Fecha Carga" />
+                            <Column field="FECHA_CARGA" header="Fecha Carga" body={(rowData) => formatDateColumn(rowData.FECHA_CARGA)} />
                             <Column field="MODULO_CARGA" header="Modulo" />
                             <Column header="Iniciado" body={(rowData) => iconTemplate(rowData.IND_INICIO)} align="center" />
                             <Column header="Finalizado" body={(rowData) => iconTemplate(rowData.IND_FINALIZADO)} align="center" />
@@ -248,7 +278,7 @@ const MyTabbedPage = () => {
                             <Column field="HORA_INICIO" header="Hora Iniciado" />
                             <Column field="HORA_FIN" header="Hora Finalizado" />
                             <Column header="Reproceso" body={(rowData) => iconTemplate(rowData.reproceso)} align="center" />
-                            <Column field="MENSAJE" header="Mensaje" />
+                            <Column field="MENSAJE" header="Mensaje" body={(row) => TruncatedCell(row.MENSAJE)}/>
                         </DataTable>
                     )}
                 </TabPanel>
@@ -293,8 +323,8 @@ const MyTabbedPage = () => {
                             <Column field="ID_MOVIMIENTO" header="Nombre Movimiento" />
                             <Column field="ACCOUNT_NUMBER" header="Account Number" />
                             <Column header="Error" body={(rowData) => errorIconTemplate(rowData.IND_ERROR)} align="center" />
-                            <Column header="Consistencia" field="consistencia" />
-                            <Column field="MENSAJE" header="Mensaje" />
+                            <Column field="CONSISTENCIA" header="Consistencia" />
+                            <Column field="MENSAJE" header="Mensaje" body={(row) => TruncatedCell(row.MENSAJE)}/>
                         </DataTable>
                     )}
                 </TabPanel>
