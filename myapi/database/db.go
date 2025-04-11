@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	_ "github.com/godror/godror"
@@ -99,14 +100,14 @@ func GetControlCarga(db *sql.DB, inputJSON string) (map[string]interface{}, erro
     `
 
 	// Agregar condición de fecha si las fechas están presentes y no son null/empty
-	params := []interface{}{offset + pageSize, offset}
+	params := map[string]interface{}{"maxRow": offset + pageSize, "minRow": offset}
 	if fechaDesde != "" {
-		query += " AND FECHA_PROCESO >= TO_DATE('" + fechaDesde + "', 'YYYY-MM-DD')"
-		//params = append(params, fechaDesde)
+		query += " AND FECHA_PROCESO >= TO_DATE(:fechaDesde, 'YYYY-MM-DD')"
+		params["fechaDesde"] = fechaDesde
 	}
 	if fechaHasta != "" {
-		query += " AND FECHA_PROCESO <= TO_DATE('" + fechaHasta + "', 'YYYY-MM-DD')"
-		//params = append(params, fechaHasta)
+		query += " AND FECHA_PROCESO <= TO_DATE(:fechaHasta, 'YYYY-MM-DD')"
+		params["fechaHasta"] = fechaHasta
 	}
 
 	// Cerrar la subconsulta
@@ -116,34 +117,40 @@ func GetControlCarga(db *sql.DB, inputJSON string) (map[string]interface{}, erro
     `
 
 	// Ejecutar la consulta
-	data, err := ExecuteSqlQueryWithTimeout(db, query, params, 20*time.Second)
+	data, err := ExecuteSqlQueryWithNamedParams(db, query, params, 20*time.Second)
 	if err != nil {
 		return nil, err
 	}
 
-	// Consulta total de registros con condiciones de fechas
+	// Consulta total de registros con condiciones de fechas usando parámetros con nombre
 	countQuery := `SELECT COUNT(*) FROM Tae_control_carga_cab`
-	countParams := []interface{}{}
+	countParams := make(map[string]interface{})
+	conditions := []string{}
 
 	// Manejar condiciones WHERE para el conteo
-	hasWhere := false
 	if fechaDesde != "" {
-		countQuery += " WHERE FECHA_PROCESO >= TO_DATE('" + fechaDesde + "', 'YYYY-MM-DD')"
-		//countParams = append(countParams, fechaDesde)
-		hasWhere = true
+		conditions = append(conditions, "FECHA_PROCESO >= TO_DATE(:fechaDesde, 'YYYY-MM-DD')")
+		countParams["fechaDesde"] = fechaDesde
 	}
 	if fechaHasta != "" {
-		if hasWhere {
-			countQuery += " AND FECHA_PROCESO <= TO_DATE('" + fechaHasta + "', 'YYYY-MM-DD')"
-		} else {
-			countQuery += " WHERE FECHA_PROCESO <= TO_DATE('" + fechaHasta + "', 'YYYY-MM-DD')"
-		}
-		//countParams = append(countParams, fechaHasta)
+		conditions = append(conditions, "FECHA_PROCESO <= TO_DATE(:fechaHasta, 'YYYY-MM-DD')")
+		countParams["fechaHasta"] = fechaHasta
+	}
+
+	// Construir la consulta final
+	if len(conditions) > 0 {
+		countQuery += " WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	// Convertir parámetros con nombre a lista para QueryRow
+	args := make([]interface{}, 0, len(countParams))
+	for name, value := range countParams {
+		args = append(args, sql.Named(name, value))
 	}
 
 	// Obtener el total de registros
 	var total int
-	err = db.QueryRow(countQuery, countParams...).Scan(&total)
+	err = db.QueryRow(countQuery, args...).Scan(&total)
 	if err != nil {
 		return nil, fmt.Errorf("error obteniendo el total de registros: %w", err)
 	}
